@@ -1,11 +1,11 @@
 import express from "express";
-import { Mongo } from "../Mongo";
+import { Mongo } from "../../Mongo";
 
 export default (mongo: Mongo) => {
   const router = express.Router();
 
   router.get('/', (req, res) => {
-    res.send("products");
+    res.send("users");
   });
 
   return router;
