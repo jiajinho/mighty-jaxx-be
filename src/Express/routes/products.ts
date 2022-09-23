@@ -4,15 +4,34 @@ import type { Product } from "../../types";
 
 export default (mongo: Mongo) => {
   const router = express.Router();
+  const collectionName = "product";
 
-  router.get('/', (req, res) => {
-    res.send("products");
+  router.get('/', async (req, res) => {
+    const db = await mongo.db();
+    const collection = db.collection(collectionName);
+
+    const result = await collection.find().toArray();
+    res.send(result);
   });
 
   router.post('/', (req, res) => {
-    console.log(req.body);
+    (async () => {
+      const collection = (await mongo.db()).collection(collectionName);
 
-    res.send("ok");
+      await collection.insertOne(req.body);
+      res.send(true);
+    })();
+  });
+
+  router.put('/:_id', (req, res) => {
+    const { _id } = req.params;
+
+    (async () => {
+      const collection = (await mongo.db()).collection(collectionName);
+
+      const result = await collection.updateOne({ _id }, req.body);
+      res.send(result);
+    })();
   });
 
 

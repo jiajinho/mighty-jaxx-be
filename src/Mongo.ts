@@ -9,7 +9,7 @@ export class Mongo {
     this.client = client.connect();
   }
 
-  async get() {
+  async db() {
     const db = (await this.client).db(config.mongo.dbName);
     return db;
   }

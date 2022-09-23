@@ -15,7 +15,8 @@ export class Express {
     this.app = express();
 
     this.app.use(cors());
-    this.app.use(json());
+    this.app.use(json({ limit: "520kb" }));
+
     this.app.use("/user", users(mongo));
     this.app.use("/product", products(mongo));
   }
