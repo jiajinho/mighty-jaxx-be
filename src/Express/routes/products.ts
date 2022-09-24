@@ -27,10 +27,18 @@ export default (mongo: Mongo) => {
   router.put('/:_id', (req, res) => {
     const { _id } = req.params;
 
+    //Omit _id when setting the new content
+    delete req.body._id;
+
     (async () => {
       const collection = (await mongo.db()).collection(collectionName);
 
-      const result = await collection.updateOne({ _id }, req.body);
+      const result = await collection.updateOne(
+        { _id: new ObjectId(_id) },
+        { $set: { ...req.body } },
+        { upsert: true }
+      );
+
       res.send(result);
     })();
   });
