@@ -1,4 +1,5 @@
 import express from "express";
+import { ObjectId } from "mongodb";
 import { Mongo } from "../../Mongo";
 import type { Product } from "../../types";
 
@@ -34,6 +35,16 @@ export default (mongo: Mongo) => {
     })();
   });
 
+  router.delete('/:_id', (req, res) => {
+    const { _id } = req.params;
+
+    (async () => {
+      const collection = (await mongo.db()).collection(collectionName);
+
+      await collection.deleteOne({ _id: new ObjectId(_id) });
+      res.send(true);
+    })();
+  });
 
   return router;
 }
