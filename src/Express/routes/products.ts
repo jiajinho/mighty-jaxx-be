@@ -1,57 +1,65 @@
 import express from "express";
 import { ObjectId } from "mongodb";
+
+import config from "../../../config";
 import { Mongo } from "../../Mongo";
-import type { Product } from "../../types";
+import { verifyJwt } from "../middleware";
 
 export default (mongo: Mongo) => {
   const router = express.Router();
-  const collectionName = "product";
+  const collection = config.express.collection.product;
 
-  router.get('/', async (req, res) => {
+  /**
+   * GET
+   */
+  router.get('/', verifyJwt, async (req, res) => {
     const db = await mongo.db();
-    const collection = db.collection(collectionName);
+    const c = db.collection(collection);
 
-    const result = await collection.find().toArray();
+    const result = await c.find().toArray();
     res.send(result);
   });
 
-  router.post('/', (req, res) => {
-    (async () => {
-      const collection = (await mongo.db()).collection(collectionName);
+  /**
+   * POST
+   */
+  router.post('/', verifyJwt, async (req, res) => {
+    const c = (await mongo.db()).collection(collection);
 
-      await collection.insertOne(req.body);
-      res.send(true);
-    })();
+    await c.insertOne(req.body);
+    res.send(true);
   });
 
-  router.put('/:_id', (req, res) => {
+  /**
+   * PUT
+   */
+  router.put('/:_id', verifyJwt, async (req, res) => {
     const { _id } = req.params;
 
     //Omit _id when setting the new content
     delete req.body._id;
 
-    (async () => {
-      const collection = (await mongo.db()).collection(collectionName);
+    const c = (await mongo.db()).collection(collection);
 
-      const result = await collection.updateOne(
-        { _id: new ObjectId(_id) },
-        { $set: { ...req.body } },
-        { upsert: true }
-      );
+    const result = await c.updateOne(
+      { _id: new ObjectId(_id) },
+      { $set: { ...req.body } },
+      { upsert: true }
+    );
 
-      res.send(result);
-    })();
+    res.send(result);
   });
 
-  router.delete('/:_id', (req, res) => {
+  /**
+   * DELETE
+   */
+  router.delete('/:_id', verifyJwt, async (req, res) => {
     const { _id } = req.params;
 
-    (async () => {
-      const collection = (await mongo.db()).collection(collectionName);
+    const c = (await mongo.db()).collection(collection);
 
-      await collection.deleteOne({ _id: new ObjectId(_id) });
-      res.send(true);
-    })();
+    await c.deleteOne({ _id: new ObjectId(_id) });
+    res.send(true);
   });
 
   return router;
