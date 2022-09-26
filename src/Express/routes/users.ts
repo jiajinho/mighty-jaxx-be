@@ -8,6 +8,9 @@ export default (mongo: Mongo) => {
   const router = express.Router();
   const collection = config.express.collection.user;
 
+  /**
+   * LOGIN
+   */
   router.post('/login', async (req, res) => {
     const c = (await mongo.db()).collection(collection);
 
@@ -28,6 +31,30 @@ export default (mongo: Mongo) => {
     } else {
       //Login failed
       res.status(401).send("Incorrect email or password");
+    }
+  });
+
+  /**
+   * AUTH LOGIN
+   */
+  router.post('/auth', async (req, res) => {
+    const { authorization: token } = req.headers;
+
+    if (!token) {
+      res.status(400).send("Authorization token is missing");
+    } else {
+      jwt.verify(token, process.env.JWT_SECRET!, {}, (err, decode) => {
+        const payload = decode as jwt.JwtPayload;
+
+        if (err || !payload.username || !payload.email)
+          res.status(400).send("Corrupt token");
+        else {
+          res.send({
+            ...payload as jwt.JwtPayload,
+            authToken: token
+          });
+        }
+      });
     }
   });
 
