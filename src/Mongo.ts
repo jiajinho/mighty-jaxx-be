@@ -5,7 +5,7 @@ export class Mongo {
   client: Promise<MongoClient>;
 
   constructor() {
-    const client = new MongoClient(config.mongo.url);
+    const client = new MongoClient(process.env.MONGO_URL!);
     this.client = client.connect();
   }
 

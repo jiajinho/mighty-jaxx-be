@@ -4,15 +4,16 @@ import config from "./config";
 import { Express } from "./src/Express";
 import { Mongo } from "./src/Mongo";
 
-dotenv({ path: `.env.${process.env.NODE_ENV}` });
+if (process.env.NODE_ENV === "dev") dotenv({ path: `.env.${process.env.NODE_ENV}` });
 
-if (!process.env.JWT_SECRET) { console.log("JWT_SECRET not set"); process.exit(1); }
+if (!process.env.JWT_SECRET) throw Error("JWT_SECRET not set");
+if (!process.env.MONGO_URL) throw Error("MONGO_URL not set");
 
 const mongo = new Mongo();
 const express = new Express(mongo);
 
 const app = express.getApp();
 
-app.listen(config.express.port, () => {
+app.listen(process.env.PORT || config.express.port, () => {
   console.log(`Listening on port ${config.express.port}`);
 });
